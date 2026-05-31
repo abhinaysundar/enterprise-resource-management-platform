@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  output: 'standalone', // Enables standalone optimized production folder builds
   /* Target backend API port redirect proxy configuration for local development */
   async rewrites() {
     return [

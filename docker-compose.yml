@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  # ============================================================================
+  # POSTGRESQL DATABASE SERVICE
+  # ============================================================================
+  erm-postgres:
+    image: postgres:15-alpine
+    container_name: erm-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: erm_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - erm-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d erm_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================================
+  # SPRING BOOT BACKEND API SERVICE
+  # ============================================================================
+  erm-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: erm-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_HOST=erm-postgres
+      - DB_PORT=5432
+      - DB_NAME=erm_db
+      - DB_USER=postgres
+      - DB_PASS=postgres
+      - SPRING_PROFILES_ACTIVE=dev
+    depends_on:
+      erm-postgres:
+        condition: service_healthy
+    networks:
+      - erm-network
+
+  # ============================================================================
+  # REACT + NEXT.JS FRONTEND CLIENT SERVICE
+  # ============================================================================
+  erm-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: erm-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+    depends_on:
+      - erm-backend
+    networks:
+      - erm-network
+
+# ==============================================================================
+# VOLUMES & ISOLATED NETWORKS DEFINITIONS
+# ==============================================================================
+volumes:
+  pgdata:
+    driver: local
+
+networks:
+  erm-network:
+    driver: bridge
