@@ -1,46 +1,105 @@
+# ==============================================================================
+# ENTERPRISE RESOURCE MANAGEMENT PLATFORM CONFIGURATION
+# ==============================================================================
+
 server:
   port: 8080
   servlet:
     context-path: /api/v1
+  shutdown: graceful # Enables graceful shutdown on container stops
+  tomcat:
+    threads:
+      max: 200 # Standard Tomcat worker thread pool capacity
+      min-spare: 10
+    connection-timeout: 20000
 
 spring:
+  profiles:
+    active: dev # Default fallback active profile
+
   application:
     name: enterprise-resource-management-service
-  
+
+  # ------------------------------------------------------------------------------
+  # Database Persistence Configurations
+  # ------------------------------------------------------------------------------
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:erm_db}
     username: ${DB_USER:postgres}
     password: ${DB_PASS:postgres}
     driver-class-name: org.postgresql.Driver
-  
+
+    # HikariCP Enterprise Connection Pooling Settings
+    hikari:
+      pool-name: ErmHikariConnectionPool
+      maximum-pool-size: 50 # Production scaled capacity
+      minimum-idle: 10 # Keeps warm database connections active
+      idle-timeout: 600000 # 10 minutes maximum idle state before retire
+      max-lifetime: 1800000 # 30 minutes maximum connection age
+      connection-timeout: 30000 # 30 seconds maximum wait for pool connection
+      keepalive-time: 30000 # 30 seconds interval to verify connection is alive
+      leak-detection-threshold: 2000 # 2 seconds threshold to log potential connection leaks
+      auto-commit: true
+      validation-timeout: 5000
+
+  # ------------------------------------------------------------------------------
+  # Hibernate & JPA Configuration
+  # ------------------------------------------------------------------------------
   jpa:
+    open-in-view: false # Prevents Open Session in View pattern to optimize connection hold times
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: validate
-    show-sql: false
+      ddl-auto: validate # Best practice for production (Flyway/Liquibase handles migrations)
+    show-sql: false # Controlled cleanly via logging levels instead of Standard Out
     properties:
       hibernate:
-        format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-  
+        format_sql: true # Formats the printed SQL statements nicely
+        use_sql_comments: true # Add details indicating where the query originated
+        highlight_sql: true # Colorize SQL prints in the console
+        jdbc:
+          batch_size: 50 # Enables query batching for heavy INSERT/UPDATE writes
+        order_inserts: true # Groups batch inserts of similar tables
+        order_updates: true # Groups batch updates of similar tables
+        generate_statistics: false # Disable query profiling in production for performance
+
+  # ------------------------------------------------------------------------------
+  # Flyway Schema Migrations Configuration
+  # ------------------------------------------------------------------------------
   flyway:
     enabled: true
     baseline-on-migrate: true
+    baseline-version: 1.0.0
+    schemas: public
+    locations: classpath:db/migration
 
-# SpringDoc OpenAPI configurations
-springdoc:
-  api-docs:
-    path: /v3/api-docs
-  swagger-ui:
-    path: /swagger-ui.html
-    operationsSorter: alpha
-    tagsSorter: alpha
+  # ------------------------------------------------------------------------------
+  # Liquibase Schema Migrations Configuration (Placeholder Alternative)
+  # ------------------------------------------------------------------------------
+  liquibase:
+    enabled: false # Disabled by default since Flyway is active
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    default-schema: public
 
-# Custom application logging
+# ==============================================================================
+# LOGGING SYSTEM LEVEL CONFIGURATIONS
+# ==============================================================================
 logging:
   level:
     root: INFO
-    com.enterprise.erm: DEBUG
-    org.springframework.web: INFO
-    org.hibernate.SQL: INFO
+    com.enterprise.erm: DEBUG # Development application logs
+    
+    # ------------------------------------------------------------------------------
+    # Hibernate / JPA SQL Debugging Levels
+    # ------------------------------------------------------------------------------
+    org.hibernate.SQL: DEBUG # Logs all raw SQL queries executed
+    org.hibernate.orm.results: TRACE # Logs mapping details of JDBC ResultSet columns
+    org.hibernate.type.descriptor.sql: TRACE # Legacy: Logs binding parameter values
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE # Logs parameter values sent to DB
+    org.hibernate.stat: INFO # Keep statistics log minimal unless required for profiling
+    
+    # Hikari Pool Connection Logs
+    com.zaxxer.hikari: INFO # Set to DEBUG to monitor pool lease behaviors
+
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
