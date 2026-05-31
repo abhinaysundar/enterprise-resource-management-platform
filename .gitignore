@@ -1,0 +1,138 @@
+# ==============================================================================
+# ENTERPRISE RESOURCE MANAGEMENT PLATFORM - ROOT GITIGNORE
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# System Files
+# ------------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ------------------------------------------------------------------------------
+# Java & Maven
+# ------------------------------------------------------------------------------
+*.class
+*.log
+*.jar
+*.war
+*.ear
+*.tar.gz
+*.zip
+*.rar
+target/
+**/target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.next
+pom.xml.versionsBackup
+pom.xml.releaseBackup
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/resources/*.jar
+!**/src/test/resources/*.jar
+
+# ------------------------------------------------------------------------------
+# Gradle (Optional fallback/hybrid toolings)
+# ------------------------------------------------------------------------------
+.gradle
+**/build/
+!src/main/**/build/
+
+# ------------------------------------------------------------------------------
+# JetBrains IDE (IntelliJ IDEA, WebStorm, etc.)
+# ------------------------------------------------------------------------------
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+**/out/
+.idea_modules/
+# Keep run configurations if they are standardized, but typically ignore them
+.idea/runConfigurations/
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/datasources.xml
+.idea/datasources.local.xml
+.idea/sqlDataSources.xml
+.idea/compiler.xml
+.idea/encodings.xml
+.idea/modules.xml
+.idea/vcs.xml
+.idea/misc.xml
+.idea/jarRepositories.xml
+atlassian-ide-plugin.xml
+com_crashlytics_export_strings.xml
+crashlytics.properties
+crashlytics-build.properties
+windowingDescription.xml
+
+# ------------------------------------------------------------------------------
+# VS Code
+# ------------------------------------------------------------------------------
+.vscode/
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/settings.json
+!.vscode/tasks.json
+*.code-workspace
+.history/
+
+# ------------------------------------------------------------------------------
+# Node.js & React/Next.js Frontend
+# ------------------------------------------------------------------------------
+node_modules/
+**/node_modules/
+.npm/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Next.js build artifacts
+.next/
+**/.next/
+out/
+**/out/
+build/
+**/dist/
+
+# Next.js Env files - MUST be kept out of VCS for security
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*.local
+
+# Vercel deployment metadata
+.vercel
+
+# TypeScript / Type checking cache
+*.tsbuildinfo
+
+# ------------------------------------------------------------------------------
+# Docker & Containers
+# ------------------------------------------------------------------------------
+# local databases volumes mount paths
+docker/data/
+**/data/pgdata/
+**/data/redis/
+**/data/mysql/
+docker-compose.override.yml
+.env.docker
+
+# ------------------------------------------------------------------------------
+# Testing & Coverage reports
+# ------------------------------------------------------------------------------
+/coverage/
+/test-results/
+.nyc_output
+.playwright/
+ playwright-report/
+test-results/
