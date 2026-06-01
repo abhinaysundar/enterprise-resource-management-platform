@@ -17,6 +17,13 @@ spring:
   profiles:
     active: dev # Default fallback active profile
 
+  # Caching Configuration
+  cache:
+    type: redis
+    redis:
+      time-to-live: 3600000 # 1 hour default TTL
+      cache-null-values: false
+
   application:
     name: enterprise-resource-management-service
 
@@ -88,7 +95,7 @@ logging:
   level:
     root: INFO
     com.enterprise.erm: DEBUG # Development application logs
-    
+
     # ------------------------------------------------------------------------------
     # Hibernate / JPA SQL Debugging Levels
     # ------------------------------------------------------------------------------
@@ -97,7 +104,7 @@ logging:
     org.hibernate.type.descriptor.sql: TRACE # Legacy: Logs binding parameter values
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE # Logs parameter values sent to DB
     org.hibernate.stat: INFO # Keep statistics log minimal unless required for profiling
-    
+
     # Hikari Pool Connection Logs
     com.zaxxer.hikari: INFO # Set to DEBUG to monitor pool lease behaviors
 
